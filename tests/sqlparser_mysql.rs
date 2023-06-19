@@ -1424,3 +1424,13 @@ fn parse_string_introducers() {
 fn parse_div_infix() {
     mysql().verified_stmt(r#"SELECT 5 DIV 2"#);
 }
+
+#[test]
+fn reserved_keywords_from_other_dialects_are_valid_in_mysql() {
+    // END is a reserved keyword in e.g. TSql but not in MySQL.
+    // It should still be a valid alias.
+    mysql_and_generic().one_statement_parses_to(
+        "SELECT * FROM foo END INNER JOIN bar WHERE END.id = bar.id",
+        "SELECT * FROM foo AS END JOIN bar WHERE END.id = bar.id",
+    );
+}

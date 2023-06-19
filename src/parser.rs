@@ -5880,7 +5880,16 @@ impl<'a> Parser<'a> {
                 // (B): `table_and_joins` (what we found inside the parentheses)
                 // is a nested join `(foo JOIN bar)`, not followed by other joins.
                 self.expect_token(&Token::RParen)?;
-                let alias = self.parse_optional_table_alias(keywords::RESERVED_FOR_TABLE_ALIAS)?;
+                let reserved_kwds = if dialect_of!(self is MsSqlDialect) {
+                    [
+                        keywords::RESERVED_FOR_TABLE_ALIAS,
+                        keywords::RESERVED_FOR_TABLE_ALIAS_MSSQL_EXTENDED,
+                    ]
+                    .concat()
+                } else {
+                    keywords::RESERVED_FOR_TABLE_ALIAS.to_owned()
+                };
+                let alias = self.parse_optional_table_alias(&reserved_kwds)?;
                 Ok(TableFactor::NestedJoin {
                     table_with_joins: Box::new(table_and_joins),
                     alias,
@@ -5971,8 +5980,16 @@ impl<'a> Parser<'a> {
             } else {
                 None
             };
-
-            let alias = self.parse_optional_table_alias(keywords::RESERVED_FOR_TABLE_ALIAS)?;
+            let reserved_kwds = if dialect_of!(self is MsSqlDialect) {
+                [
+                    keywords::RESERVED_FOR_TABLE_ALIAS,
+                    keywords::RESERVED_FOR_TABLE_ALIAS_MSSQL_EXTENDED,
+                ]
+                .concat()
+            } else {
+                keywords::RESERVED_FOR_TABLE_ALIAS.to_owned()
+            };
+            let alias = self.parse_optional_table_alias(&reserved_kwds)?;
 
             // Pivot
             if self.parse_keyword(Keyword::PIVOT) {
@@ -6447,7 +6464,16 @@ impl<'a> Parser<'a> {
                 } else {
                     expr
                 };
-                self.parse_optional_alias(keywords::RESERVED_FOR_COLUMN_ALIAS)
+                let reserved_kwds = if dialect_of!(self is MsSqlDialect) {
+                    [
+                        keywords::RESERVED_FOR_COLUMN_ALIAS,
+                        keywords::RESERVED_FOR_COLUMN_ALIAS_MSSQL_EXTENDED,
+                    ]
+                    .concat()
+                } else {
+                    keywords::RESERVED_FOR_COLUMN_ALIAS.to_owned()
+                };
+                self.parse_optional_alias(&reserved_kwds)
                     .map(|alias| match alias {
                         Some(alias) => SelectItem::ExprWithAlias { expr, alias },
                         None => SelectItem::UnnamedExpr(expr),

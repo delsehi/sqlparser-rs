@@ -118,12 +118,12 @@ fn parse_create_procedure() {
 
 #[test]
 fn parse_mssql_create_procedure() {
-    let _ = ms_and_generic().verified_stmt("CREATE OR ALTER PROCEDURE foo AS BEGIN SELECT 1 END");
-    let _ = ms_and_generic().verified_stmt("CREATE PROCEDURE foo AS BEGIN SELECT 1 END");
+    let _ = ms().verified_stmt("CREATE OR ALTER PROCEDURE foo AS BEGIN SELECT 1 END");
+    let _ = ms().verified_stmt("CREATE PROCEDURE foo AS BEGIN SELECT 1 END");
     let _ = ms().verified_stmt(
         "CREATE PROCEDURE foo AS BEGIN SELECT [myColumn] FROM [myschema].[mytable] END",
     );
-    let _ = ms_and_generic().verified_stmt(
+    let _ = ms().verified_stmt(
         "CREATE PROCEDURE foo (@CustomerName NVARCHAR(50)) AS BEGIN SELECT * FROM DEV END",
     );
     let _ = ms().verified_stmt("CREATE PROCEDURE [foo] AS BEGIN UPDATE bar SET col = 'test' END");
